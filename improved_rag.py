@@ -5,13 +5,15 @@ from sqlalchemy import func
 from sqlmodel import Field, SQLModel, Session, create_engine, select, delete
 from pymilvus import MilvusClient, DataType
 from elasticsearch import Elasticsearch
-
+from dotenv import load_dotenv
 from litellm import completion, embedding
 import streamlit as st
 
 from typing import List
 
 from common import LLM_RESPONSE_STYLE, RAG_PROMPT_TEMPLATE
+
+load_dotenv()
 
 # RDB
 engine = create_engine(

@@ -8,9 +8,11 @@ from typing import Optional, Any
 from pytidb import TiDBClient
 from pytidb.schema import TableModel, Field
 from pytidb.embeddings import EmbeddingFunction
+from dotenv import load_dotenv
 
 from common import LLM_RESPONSE_STYLE, RAG_PROMPT_TEMPLATE
 
+load_dotenv()
 
 db = TiDBClient.connect(
     host=os.getenv("SERVERLESS_CLUSTER_HOST"),

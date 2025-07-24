@@ -2,6 +2,9 @@ from litellm import completion
 import streamlit as st
 
 from common import LLM_RESPONSE_STYLE
+from dotenv import load_dotenv
+
+load_dotenv()
 
 llm_model = "openai/gpt-4o"
 

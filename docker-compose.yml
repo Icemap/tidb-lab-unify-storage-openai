@@ -75,35 +75,35 @@ services:
       - "milvus-etcd"
       - "milvus-minio"
 
-  # code-server:
-  #   image: cheesewang/tidb-lab-python-vscode:1.0
-  #   container_name: tidb_lab_app
-  #   ports:
-  #     - "3000:8080"
-  #     - "8501:8501"
-  #     - "8502:8502"
-  #     - "8503:8503"
-  #     - "8504:8504"
-  #   environment:
-  #     SERVERLESS_CLUSTER_HOST: ${SERVERLESS_CLUSTER_HOST}
-  #     SERVERLESS_CLUSTER_PORT: ${SERVERLESS_CLUSTER_PORT}
-  #     SERVERLESS_CLUSTER_USERNAME: ${SERVERLESS_CLUSTER_USERNAME}
-  #     SERVERLESS_CLUSTER_PASSWORD: ${SERVERLESS_CLUSTER_PASSWORD}
-  #     SERVERLESS_CLUSTER_DATABASE_NAME: ${SERVERLESS_CLUSTER_DATABASE_NAME}
-  #     # Database connection details for services within docker-compose network
-  #     MYSQL_HOST: mysql # Service name of MySQL container
-  #     MYSQL_PORT: 3306
-  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-  #     MYSQL_DATABASE: ${MYSQL_DATABASE:-mydatabase}
-  #     ELASTICSEARCH_HOST: elasticsearch # Service name of Elasticsearch container
-  #     ELASTICSEARCH_PORT: 9200
-  #     MILVUS_HOST: milvus # Service name of Milvus container
-  #     MILVUS_GRPC_PORT: 19530
-  #     MILVUS_HTTP_PORT: 9091
-  #   volumes:
-  #     - .:/root/tidb-lab-unify-storage-openai # Mounts local directory into the container
-  #   depends_on:
-  #     - mysql
-  #     - elasticsearch
-  #     - milvus
-  #   restart: unless-stopped
+  code-server:
+    image: cheesewang/tidb-lab-python-vscode:1.0
+    container_name: tidb_lab_app
+    ports:
+      - "3000:8080"
+      - "8501:8501"
+      - "8502:8502"
+      - "8503:8503"
+      - "8504:8504"
+    environment:
+      SERVERLESS_CLUSTER_HOST: ${SERVERLESS_CLUSTER_HOST}
+      SERVERLESS_CLUSTER_PORT: ${SERVERLESS_CLUSTER_PORT}
+      SERVERLESS_CLUSTER_USERNAME: ${SERVERLESS_CLUSTER_USERNAME}
+      SERVERLESS_CLUSTER_PASSWORD: ${SERVERLESS_CLUSTER_PASSWORD}
+      SERVERLESS_CLUSTER_DATABASE_NAME: ${SERVERLESS_CLUSTER_DATABASE_NAME}
+      # Database connection details for services within docker-compose network
+      MYSQL_HOST: mysql # Service name of MySQL container
+      MYSQL_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mydatabase}
+      ELASTICSEARCH_HOST: elasticsearch # Service name of Elasticsearch container
+      ELASTICSEARCH_PORT: 9200
+      MILVUS_HOST: milvus # Service name of Milvus container
+      MILVUS_GRPC_PORT: 19530
+      MILVUS_HTTP_PORT: 9091
+    volumes:
+      - .:/root/tidb-lab-unify-storage-openai # Mounts local directory into the container
+    depends_on:
+      - mysql
+      - elasticsearch
+      - milvus
+    restart: unless-stopped

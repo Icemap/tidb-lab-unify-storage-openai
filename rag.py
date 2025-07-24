@@ -27,7 +27,7 @@ engine = create_engine(
     )
 )
 embedding_model = "openai/text-embedding-3-small"
-embedding_dimensions = 1024
+embedding_dimensions = 1536
 
 llm_model = "openai/gpt-4o"
 milvus_client = MilvusClient(

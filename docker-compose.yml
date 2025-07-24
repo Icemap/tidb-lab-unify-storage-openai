@@ -1,0 +1,109 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306" # Exposing MySQL port to host, can be removed if only internal access is needed
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root} # Change or set MYSQL_ROOT_PASSWORD in .env
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mydatabase} # Optional: create a database on startup
+      MYSQL_ROOT_HOST: '%'
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:8.18.1
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300" # Transport port
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false" # Disable security for simpler lab setup, not for production
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m" # Adjust heap size as needed
+    restart: unless-stopped
+
+  milvus-etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.18
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus-minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus:
+    container_name: milvus
+    image: milvusdb/milvus:v2.5.10
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+    - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: milvus-etcd:2379
+      MINIO_ADDRESS: milvus-minio:9000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - "milvus-etcd"
+      - "milvus-minio"
+
+  # code-server:
+  #   image: cheesewang/tidb-lab-python-vscode:1.0
+  #   container_name: tidb_lab_app
+  #   ports:
+  #     - "3000:8080"
+  #     - "8501:8501"
+  #     - "8502:8502"
+  #     - "8503:8503"
+  #     - "8504:8504"
+  #   environment:
+  #     SERVERLESS_CLUSTER_HOST: ${SERVERLESS_CLUSTER_HOST}
+  #     SERVERLESS_CLUSTER_PORT: ${SERVERLESS_CLUSTER_PORT}
+  #     SERVERLESS_CLUSTER_USERNAME: ${SERVERLESS_CLUSTER_USERNAME}
+  #     SERVERLESS_CLUSTER_PASSWORD: ${SERVERLESS_CLUSTER_PASSWORD}
+  #     SERVERLESS_CLUSTER_DATABASE_NAME: ${SERVERLESS_CLUSTER_DATABASE_NAME}
+  #     # Database connection details for services within docker-compose network
+  #     MYSQL_HOST: mysql # Service name of MySQL container
+  #     MYSQL_PORT: 3306
+  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+  #     MYSQL_DATABASE: ${MYSQL_DATABASE:-mydatabase}
+  #     ELASTICSEARCH_HOST: elasticsearch # Service name of Elasticsearch container
+  #     ELASTICSEARCH_PORT: 9200
+  #     MILVUS_HOST: milvus # Service name of Milvus container
+  #     MILVUS_GRPC_PORT: 19530
+  #     MILVUS_HTTP_PORT: 9091
+  #   volumes:
+  #     - .:/root/tidb-lab-unify-storage-openai # Mounts local directory into the container
+  #   depends_on:
+  #     - mysql
+  #     - elasticsearch
+  #     - milvus
+  #   restart: unless-stopped

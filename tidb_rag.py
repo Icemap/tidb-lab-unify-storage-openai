@@ -76,6 +76,7 @@ if right.button("Save Data"):
     # insert sample employees
     if table.rows() == 0:
         table.bulk_insert(employees)
+        db.execute("ALTER TABLE employees COMPACT")
         st.rerun()
 
 with st.expander("📁 All Employees in the Database", expanded=False):
